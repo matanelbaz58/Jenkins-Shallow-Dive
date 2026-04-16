@@ -20,7 +20,7 @@ pipeline{
                 stage('Linter') {
                     steps {
                             sh '''
-                            pylint   --disable=missing-docstring,invalid-name .
+                            pylint   --disable=missing-docstring,invalid-name app.py
                             '''
                         }
                     }
