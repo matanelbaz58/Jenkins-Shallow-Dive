@@ -25,21 +25,26 @@ pipeline{
                         }
                     }
                 stage('Test') {
-                    steps {
-                        sh'''
-                            python3 ./app.py
-                            if curl localhost:8080 > /dev/null 2>&1
-                                then
-                                        echo "Test SUCCESSFUL"
-                                        sleep 2
-                            else
-                                        echo "Test FAILED"
-                                        sleep 2
-                                        exit 1
-                            fi
-                        '''
-                        }
-                    }
+    steps {
+        sh '''
+            python3 ./app.py > app.log 2>&1 &
+            APP_PID=$!
+            sleep 5
+
+            if curl -f http://127.0.0.1:8000 > /dev/null 2>&1; then
+                echo "Test SUCCESSFUL"
+            else
+                echo "Test FAILED"
+                cat app.log
+                kill $APP_PID || true
+                exit 1
+            fi
+
+            kill $APP_PID || true
+        '''
+    }
+}
+
                 stage('Build'){
                     steps {
                     sh '''
